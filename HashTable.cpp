@@ -8,6 +8,7 @@ and then go to Properties/VC++ Directories/General/Include Directories*/
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include "HashTable.h"
 using namespace std;
 
@@ -95,8 +96,9 @@ HashTable2::HashTable2()
 /* To fix table columns */
 void HashTable2::printTable(int x, rowItem HashArray[], int& width)
 {
+	FixAllEmptySpots();
 	//cout.width(3);
-
+	cout<<left<< setw(6) << setfill(Separator) << x;
 	/* Only if it's occupied or the first element */
 	if (HashArray[x].Fullcode==1 || x == 0)
 	{
@@ -133,6 +135,7 @@ void HashTable2::printTable(int x, rowItem HashArray[], int& width)
 /* new toString using the printTable Function to fix the column spaces */
 void HashTable2::toString(rowItem HashArray[])
 {
+	FixAllEmptySpots();
 	for(int x = 0; x < 114; x++)
 	{
 
@@ -150,18 +153,85 @@ void HashTable2::toString(rowItem HashArray[])
 /* Tag Table */
 string HashTable2::printTagTable(rowItem HashArray[])
 {
+	FixAllEmptySpots();
 	string collection = " \nRoomNo \t| HashNo\n";
-	for (int x = 0; x < 114; x++)
-	{
-		/* Collects it only if it's not empty */
-		if(HashArray[x].Fullcode == 1)
+//	for (int x = 0; x < 114; x++)
+//	{
+//		/* Collects it only if it's not empty */
+//		if(HashArray[x].Fullcode == 1)
+//		{
+//			/* RoomNo and HashNo */
+//			collection += intToString(HashArray[x].RoomNo) + " \t| ";
+//			collection += intToString(x) + " \t|\n";
+//		}
+//	}
+//	return collection;
+
+	/*Printing out sorted array*/
+		//FixAllEmptySpots();
+		//string collection = " \nRoomNo \t| Index\n";
+		int roomCollection[100][2];
+		/*roomCollection initialization*/
+		for(int x = 1; x < 100; x++)
 		{
-			/* RoomNo and HashNo */
-			collection += intToString(HashArray[x].RoomNo) + " \t| ";
-			collection += intToString(x) + " \t|\n";
+			roomCollection[x][0] = x;
+			roomCollection[x][1] = 0;
 		}
-	}
-	return collection;
+
+		/*Copy HashArray to roomCollection*/
+		for(int x = 0; x < 114; x++)
+		{
+			if(HashArray[x].Fullcode != 0)
+			{
+				int room = HashArray[x].RoomNo;
+
+//				/*Room number*/
+//				roomCollection[room][0] = room;
+				/*index*/
+				roomCollection[room][1] = x;
+			}
+		}
+
+		/*sorts roomCollection*/
+		for(int x=0; x<100; x++)
+
+		{
+
+			for(int y=0; y<99; y++)
+
+			{
+
+				if(roomCollection[y][0]>roomCollection[y+1][0])
+
+				{
+
+					int temp = roomCollection[y+1][0];
+					int temp2 = roomCollection[y+1][1];
+
+					roomCollection[y+1][0] = roomCollection[y][0];
+					roomCollection[y+1][1] = roomCollection[y][1];
+
+					roomCollection[y][0] = temp;
+					roomCollection[y][1] = temp2;
+
+				}
+
+			}
+
+		}
+
+		for (int x = 0; x < 99; x++)
+		{
+				/* RoomNo and Index */
+				collection += intToString(roomCollection[x][0]) + " \t| ";
+				collection += intToString(roomCollection[x][1]) + " \t|\n";
+
+		}
+
+		collection += "100 \t| ";
+		collection += intToString(roomCollection[100][1]) + " \t|\n";
+
+		return collection;
 }
 
 /* Hashing Function */
@@ -216,7 +286,13 @@ void HashTable2::insert(string Name, int requestedRoomNo, rowItem HashArray[])
 		{
 			if (HashArray[rowNo - 1].Fullcode == 0)
 			{
-				HashArray[rowNo - 1].Fwd_Chain++;
+				int x = rowNo;
+				/*looks for next available spot*/
+				while(HashArray[x].Fullcode != 0 && HashArray[0].Bwd_Chain != rowNo)
+				{
+					x++;
+				}
+				HashArray[rowNo - 1].Fwd_Chain = x;
 			}
 		}
 
@@ -226,7 +302,12 @@ void HashTable2::insert(string Name, int requestedRoomNo, rowItem HashArray[])
 		{
 			if (HashArray[rowNo + 1].Fullcode == 0)
 			{
-				HashArray[rowNo + 1].Bwd_Chain--;
+				int x = rowNo;
+				while(HashArray[x].Fullcode != 0 && HashArray[0].Fwd_Chain != rowNo)
+				{
+					x--;
+				}
+				HashArray[rowNo + 1].Bwd_Chain = x;
 			}
 		}
 	}
@@ -274,7 +355,13 @@ void HashTable2::insert(string Name, int requestedRoomNo, rowItem HashArray[])
 		{
 			if (HashArray[rowNo - 1].Fullcode == 0)
 			{
-				HashArray[rowNo - 1].Fwd_Chain++;
+				int x = rowNo;
+				while(HashArray[x].Fullcode != 0 && HashArray[0].Bwd_Chain != rowNo)
+				{
+					x++;
+				}
+				HashArray[rowNo - 1].Fwd_Chain = x;
+
 			}
 		}
 
@@ -284,7 +371,12 @@ void HashTable2::insert(string Name, int requestedRoomNo, rowItem HashArray[])
 		{
 			if (HashArray[rowNo + 1].Fullcode == 0)
 			{
-				HashArray[rowNo + 1].Bwd_Chain--;
+				int x = rowNo;
+				while(HashArray[x].Fullcode != 0 && HashArray[0].Fwd_Chain != rowNo)
+				{
+					x--;
+				}
+				HashArray[rowNo + 1].Bwd_Chain = x;
 			}
 		}
 
@@ -327,6 +419,10 @@ void HashTable2::insert(string Name, int requestedRoomNo, rowItem HashArray[])
 	HashArray[0].Fwd_Chain = index;
 	/* Also the empty chain's first open spot's backward chain
 	 * should equal to -1. Make sure the index is within range */
+
+
+	FixAllEmptySpots();
+
 	int holdIndex = HashArray[0].Fwd_Chain;
 	if (holdIndex > 0 && holdIndex < 114)
 	{
@@ -340,6 +436,7 @@ void HashTable2::insert(string Name, int requestedRoomNo, rowItem HashArray[])
 /* Mentions how many probes it took */
 int HashTable2::search(string name)
 {
+	FixAllEmptySpots();
 	/* Hashes the name */
 	int rowNo = hashing(name);
 
@@ -408,6 +505,7 @@ int HashTable2::search(string name)
 /* Remove */
 bool HashTable2::remove(string key, int index)
 {
+	FixAllEmptySpots();
 	/* First search if it is there.
 	 * If it it isn't, then it's
 	 * already not there. */
@@ -592,7 +690,7 @@ bool HashTable2::remove(string key, int index)
 		/* Not found */
 	}
 
-
+	FixAllEmptySpots();
 	population--;
 
 	return false;
@@ -632,4 +730,58 @@ bool HashTable2::DuplicateRoom(int RoomNo)
 		}
 	}
 	return false;
+}
+
+/*Normally after inserting and deleting, the empty spaces are
+ * incremented or decremented.. but in actuality that is wrong.
+ * You have to use loops to check the next empty space, not just
+ * increment or decrement*/
+void HashTable2::FixAllEmptySpots()
+{
+	for (int x = 1; x < 114; x++)
+	{
+		/*Fix whole list empty spots as a whole*/
+		for (int rowNoLoop = 1; rowNoLoop < 114; rowNoLoop++)
+		{
+			/* Prev row FC*/
+			/* If it doesn't have empty chain
+			 * behind it */
+			if (rowNoLoop != 1)
+			{
+				if (HashArray[rowNoLoop - 1].Fullcode == 0)
+				{
+					int x = rowNoLoop;
+					while(HashArray[x].Fullcode != 0 && HashArray[0].Bwd_Chain != rowNoLoop)
+					{
+						x++;
+					}
+
+					HashArray[rowNoLoop - 1].Fwd_Chain = x;
+
+				}
+			}
+
+			/* Next row BC */
+			/* If it's not the last row */
+			if (rowNoLoop != 113)
+			{
+				if (HashArray[rowNoLoop + 1].Fullcode == 0)
+				{
+					int x = rowNoLoop;
+					while(HashArray[x].Fullcode != 0 && HashArray[0].Fwd_Chain != rowNoLoop)
+					{
+						x--;
+					}
+					HashArray[rowNoLoop + 1].Bwd_Chain = x;
+				}
+			}
+		}
+
+	}
+	/* Fixes the first empty spot's Bwd_Chain*/
+	int holdIndex = HashArray[0].Fwd_Chain;
+	if (holdIndex > 0 && holdIndex < 114)
+	{
+		HashArray[holdIndex].Bwd_Chain = -1;
+	}
 }

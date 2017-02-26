@@ -60,6 +60,9 @@ public:
 	bool HashTable2::isFull();
 	bool HashTable2::isEmpty();
 	bool HashTable2::DuplicateRoom(int RoomNo);
+	void FixAllEmptySpots();
+	void sort(int MyArray[100][2]);
+
 
 };
 

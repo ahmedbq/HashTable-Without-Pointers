@@ -150,7 +150,7 @@ int main()
 		/* PRINT */
 		case 1:
 		{
-
+			cout<<left<<setw(6)<<setfill(Table.Separator)<<"Index|";
 			cout<<left<<setw(25)<<setfill(Table.Separator)<<"          Name     ";
 			cout<<left<<setw(10)<<setfill(Table.Separator)<<"|RoomNo   |";
 			cout<<left<<setw(10)<<setfill(Table.Separator)<<"Fwd_Chain|";
