@@ -279,37 +279,7 @@ void HashTable2::insert(string Name, int requestedRoomNo, rowItem HashArray[])
 
 		/* Empty Chain and the ones around must change */
 
-		/* Prev row FC*/
-		/* If it doesn't have empty chain
-		 * behind it */
-		if (rowNo != 1)
-		{
-			if (HashArray[rowNo - 1].Fullcode == 0)
-			{
-				int x = rowNo;
-				/*looks for next available spot*/
-				while(HashArray[x].Fullcode != 0 && HashArray[0].Bwd_Chain != rowNo)
-				{
-					x++;
-				}
-				HashArray[rowNo - 1].Fwd_Chain = x;
-			}
-		}
 
-		/* Next row BC */
-		/* If it's not the last row */
-		if (rowNo != 113)
-		{
-			if (HashArray[rowNo + 1].Fullcode == 0)
-			{
-				int x = rowNo;
-				while(HashArray[x].Fullcode != 0 && HashArray[0].Fwd_Chain != rowNo)
-				{
-					x--;
-				}
-				HashArray[rowNo + 1].Bwd_Chain = x;
-			}
-		}
 	}
 	/* If occupied by a native */
 
